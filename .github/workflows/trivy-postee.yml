@@ -1,0 +1,38 @@
+name: trivy-postee
+on:
+  workflow_dispatch:
+env:
+  ORGANIZATION: krol
+  APP: helloworld
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Build an image from Dockerfile
+      #   run: |
+      #     docker build -t docker.io/${{ env.ORGANIZATION }}/${{ env.APP }}:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+      #    image-ref: 'docker.io/${{ env.ORGANIZATION }}/${{ env.APP }}:${{ github.sha }}'
+          image-ref: alpine:3.10
+          format: 'json'
+          exit-code: '0'
+          ignore-unfixed: false
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          output: 'trivy-results.json'
+
+      - name: Send results to Postee
+        env:
+          POSTEE: ${{ secrets.POSTEE_SERVER }}
+        run: |
+          RESULTS="trivy-results.json"
+          /usr/bin/curl --max-time 5 --fail --show-error -s -H 'Content-Type: application/json' "$POSTEE" --data @./$(echo $RESULTS | xargs)  > /dev/null
+        # postee-server:8082
