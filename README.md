@@ -1,8 +1,8 @@
 # Demo using Trivy and Postee
 
-Receive a notification if you find critical vulnerabilities when you build your image.
+Receive a notification if you find critical vulnerabilities when you build your image, ath the build stage.
 
-[GIF DEMO]
+![gif-demo](./images/demo-postee-trivy-slack.gif)
 
 ## Trivy Image vulnerability
 
@@ -19,13 +19,7 @@ Receive a notification if you find critical vulnerabilities when you build your 
 
 ### Settings in the pipeline
 
-Configure a Secret environment `${{ secrets.POSTEE_SERVER }}` for your Postee endpoint. More details to create secrets in github here.
-
-<details>
-<summary>Show</summary>
-
-![](https://i.imgur.com/VekunDH.png)
-</details></br>
+Configure a Secret environment `${{ secrets.POSTEE_SERVER }}` for your Postee endpoint.
 
 >> Postee webhook `http://postee-svc.default.svc.cluster.local:8082`
 
@@ -35,7 +29,27 @@ Configure a Secret environment `${{ secrets.POSTEE_SERVER }}` for your Postee en
 kubectl create -f https://raw.githubusercontent.com/aquasecurity/postee/main/deploy/kubernetes/postee.yaml
 
 ```
-[Postee manifest to install](https://aquasecurity.github.io/postee/v2.7.2/install/)
+>> [Postee documentation](https://aquasecurity.github.io/postee/v2.7.2/install/)
 
 ### Trivy and Postee demo
 
+Postee-UI (User Interface) will help you to configure the [cfg.yml](https://github.com/aquasecurity/postee/blob/main/cfg.yaml).
+
+Postee receive an input (JSON), and it will use filters written in [OPA](https://www.openpolicyagent.org/docs/v0.11.0/get-started/) to analyze the data and send output to other third parties like slack.
+
+You can configure several routes acording the policies to apply to the input.
+
+![alpine-rego](./images/postee-ui-trivy-route.png)
+
+
+<details>
+<summary>Show the routes</summary>
+
+![alpine-rego](./images/postee-ui-demo.png)
+</details></br>
+
+<details>
+<summary>Show the slack settings</summary>
+
+![alpine-rego](./images/postee-ui-slack-action.png)
+</details></br>
