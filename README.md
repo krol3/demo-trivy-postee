@@ -1,6 +1,6 @@
 # Demo using Trivy and Postee
 
-Receive a notification if you find critical vulnerabilities when you build your image, ath the build stage.
+Receive a notification if you find critical vulnerabilities when you build your image, at the build stage.
 
 ![gif-demo](./images/demo-postee-trivy-slack.gif)
 
