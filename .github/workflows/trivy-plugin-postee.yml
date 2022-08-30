@@ -1,0 +1,31 @@
+name: trivy-plugin-postee
+on:
+  workflow_dispatch:
+env:
+  ORGANIZATION: krol
+  APP: helloworld
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: alpine:3.10
+          trivy-config: trivy.yaml
+
+      - name: Send results to Postee
+        env:
+          POSTEE: ${{ secrets.POSTEE_SERVER }}
+        run: |
+          RESULTS="trivy-results.json"
+          $ trivy plugin install github.com/aquasecurity/trivy-plugin-kubectl
+
+          /usr/bin/curl --max-time 5 --fail --show-error -s -H 'Content-Type: application/json' "$POSTEE" --data @./$(echo $RESULTS | xargs)  > /dev/null
+        # postee-server:8082
