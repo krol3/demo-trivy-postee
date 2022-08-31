@@ -19,11 +19,13 @@ jobs:
           wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
           echo "$PWD/" >> $GITHUB_PATH
 
+      - name: Install trivy plugin
+        run: |
+          trivy plugin install github.com/aquasecurity/trivy-plugin-webhook
+
       - name: Send results to Postee
         env:
           POSTEE: ${{ secrets.POSTEE_SERVER }}
         run: |
-          RESULTS="trivy-results.json"
-          trivy plugin install github.com/aquasecurity/trivy-plugin-kubectl
           trivy webhook -- --url=$POSTEE -- image alpine:3.10
         # postee-server:8082
