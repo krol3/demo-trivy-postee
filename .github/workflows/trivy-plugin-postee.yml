@@ -12,20 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run Trivy vulnerability scanner
-        id: trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          image-ref: alpine:3.10
-          trivy-config: trivy.yaml
+      - name: Install Trivy
+        run: |
+          export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          echo $TRIVY_VERSION
+          wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
+          echo "$PWD/" >> $GITHUB_PATH
+
+      - name: Install trivy plugin
+        run: |
+          trivy plugin install github.com/aquasecurity/trivy-plugin-webhook
 
       - name: Send results to Postee
         env:
           POSTEE: ${{ secrets.POSTEE_SERVER }}
         run: |
-          RESULTS="trivy-results.json"
-          $ trivy plugin install github.com/aquasecurity/trivy-plugin-kubectl
-
-          /usr/bin/curl --max-time 5 --fail --show-error -s -H 'Content-Type: application/json' "$POSTEE" --data @./$(echo $RESULTS | xargs)  > /dev/null
+          trivy webhook -- --url=$POSTEE -- image alpine:3.10
         # postee-server:8082
